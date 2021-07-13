@@ -1,3 +1,7 @@
+@namespace
+class SpriteKind:
+    Laser = SpriteKind.create()
+
 # === PLAYER ===
 tank = sprites.create( img("""
     . . . . . . . . . . . . . . . .
@@ -55,8 +59,9 @@ def create_aliens():
     for row in range(3):
         for col in range(7):
             alien = sprites.create(alien_img, SpriteKind.enemy)
-            alien.set_position(10+20*col, 10+20*row)
+            alien.set_position(30+20*col, 10+20*row)
             aliens.append(alien)
+            alien.vx = 10
 create_aliens()
 
 def move_aliens():
@@ -74,25 +79,24 @@ def destroy_alien(laser, alien):
         game.over(True, effects.confetti)
 sprites.on_overlap(SpriteKind.projectile, SpriteKind.enemy, destroy_alien)
 
-
 # === LASER/SHOOTING ===
 laser_img = img("""
     . . . . . . . . . . . . . . . .
     . . . . . . . . . . . . . . . .
-    . . . . 5 5 5 5 5 5 5 5 . . . .
-    . . . . 5 5 5 5 5 5 5 5 . . . .
-    . . . . 5 5 5 5 5 5 5 5 . . . .
-    . . . . 5 5 5 5 5 5 5 5 . . . .
-    . . . . 5 5 5 5 5 5 5 5 . . . .
-    . . . . 5 5 5 5 5 5 5 5 . . . .
-    . . . . 5 5 5 5 5 5 5 5 . . . .
-    . . . . 5 5 5 5 5 5 5 5 . . . .
-    . . . . 5 5 5 5 5 5 5 5 . . . .
-    . . . . 5 5 5 5 5 5 5 5 . . . .
-    . . . . 5 5 5 5 5 5 5 5 . . . .
-    . . . . 5 5 5 5 5 5 5 5 . . . .
-    . . . . 5 5 5 5 5 5 5 5 . . . .
-    . . . . 5 5 5 5 5 5 5 5 . . . .
+    . . . . . . 5 5 5 . . . . . . .
+    . . . . . . 5 5 5 . . . . . . .
+    . . . . . . 5 5 5 . . . . . . .
+    . . . . . . 5 5 5 . . . . . . .
+    . . . . . . 5 5 5 . . . . . . .
+    . . . . . . 5 5 5 . . . . . . .
+    . . . . . . 5 5 5 . . . . . . .
+    . . . . . . 5 5 5 . . . . . . .
+    . . . . . . 5 5 5 . . . . . . .
+    . . . . . . 5 5 5 . . . . . . .
+    . . . . . . 5 5 5 . . . . . . .
+    . . . . . . 5 5 5 . . . . . . .
+    . . . . . . 5 5 5 . . . . . . .
+    . . . . . . 5 5 5 . . . . . . .
 """)
 
 def shoot_laser():
@@ -100,6 +104,41 @@ def shoot_laser():
     #music.play_tone(Note.C, BeatFraction.EIGHTH)
     music.pew_pew.play()
 controller.A.on_event(ControllerButtonEvent.PRESSED,shoot_laser)
+
+# === ENEMY LASER ===
+alien_laser_img = img("""
+    . . . . . . . . . . . . . . . .
+    . . . . . . . . . . . . . . . .
+    . . . . . . . . . . . . . . . .
+    . . . . . . . . . . . . . . . .
+    . . . . . . 2 2 2 . . . . . . .
+    . . . . . . 2 2 2 . . . . . . .
+    . . . . . . 2 2 2 . . . . . . .
+    . . . . . . 2 2 2 . . . . . . .
+    . . . . . . 2 2 2 . . . . . . .
+    . . . . . . 2 2 2 . . . . . . .
+    . . . . . . 2 2 2 . . . . . . .
+    . . . . . . 2 2 2 . . . . . . .
+    . . . . . . 2 2 2 . . . . . . .
+    . . . . . . . . . . . . . . . .
+    . . . . . . . . . . . . . . . .
+    . . . . . . . . . . . . . . . .
+""")
+
+def alien_shoot():
+    random_alien = aliens[randint(0, len(aliens))]
+    # change 20 to be larger for faster shots aka harder difficulty
+    # change 20 to be smaller for slower shots aka easier difficulty
+    laser = sprites.create_projectile_from_sprite(alien_laser_img, random_alien, 0, 20)
+    laser.set_kind(SpriteKind.Laser)
+game.on_update_interval(1000, alien_shoot)
+
+def hit_player(laser, tank):
+    laser.destroy()
+    tank.start_effect(effects.fire, 300)
+    info.change_life_by(-1)
+    music.thump.play()
+sprites.on_overlap(SpriteKind.Laser, SpriteKind.player, hit_player)
 
 
 scene.set_background_image(img("""
