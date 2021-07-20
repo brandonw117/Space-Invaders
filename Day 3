@@ -1,6 +1,7 @@
 @namespace
 class SpriteKind:
     Laser = SpriteKind.create()
+    Bunker = SpriteKind.create()
 
 # === PLAYER ===
 tank = sprites.create( img("""
@@ -131,7 +132,7 @@ def alien_shoot():
     # change 20 to be smaller for slower shots aka easier difficulty
     laser = sprites.create_projectile_from_sprite(alien_laser_img, random_alien, 0, 20)
     laser.set_kind(SpriteKind.Laser)
-game.on_update_interval(1000, alien_shoot)
+game.on_update_interval(2000, alien_shoot)
 
 def hit_player(laser, tank):
     laser.destroy()
@@ -140,6 +141,16 @@ def hit_player(laser, tank):
     music.thump.play()
 sprites.on_overlap(SpriteKind.Laser, SpriteKind.player, hit_player)
 
+# === BUNKER ===
+bunker_img = image.create(4, 4)
+bunker_img.fill(10)
+
+for bunk in range(4):
+    for row in range(4):
+        for column in range(4):
+            cover = sprites.create(bunker_img, SpriteKind.Bunker)
+            cover.set_position(15+5*column, 80+5*row)
+            cover.x = cover.x + (40*bunk)
 
 scene.set_background_image(img("""
     6666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666
