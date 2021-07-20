@@ -3,6 +3,7 @@ class SpriteKind:
     Laser = SpriteKind.create()
     Bunker = SpriteKind.create()
 
+game.splash("Press z to start Space Invaders")
 # === PLAYER ===
 tank = sprites.create( img("""
     . . . . . . . . . . . . . . . .
@@ -75,6 +76,8 @@ def destroy_alien(laser, alien):
     laser.destroy()
     music.zapped.play()
     aliens.remove_element(alien)
+
+    info.change_score_by(5)
 
     if len(aliens) == 0:
         game.over(True, effects.confetti)
@@ -151,6 +154,12 @@ for bunk in range(4):
             cover = sprites.create(bunker_img, SpriteKind.Bunker)
             cover.set_position(15+5*column, 80+5*row)
             cover.x = cover.x + (40*bunk)
+
+def hit_bunker(laser, bunker):
+    laser.destroy()
+    bunker.destroy(effects.disintegrate)
+sprites.on_overlap(SpriteKind.projectile, SpriteKind.Bunker, hit_bunker)
+sprites.on_overlap(SpriteKind.Laser, SpriteKind.Bunker, hit_bunker)
 
 scene.set_background_image(img("""
     6666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666
